@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Batu Kertas Gunting - 2 Pemain</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1f2a44, #3b5998);
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.30);
+            text-align: center;
+        }
+
+        h1 {
+            color: #1f2a44;
+            margin-bottom: 8px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #667085;
+            margin-bottom: 20px;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .score {
+            background: #f3f6ff;
+            border: 2px solid #d8e1ff;
+            min-width: 130px;
+            border-radius: 16px;
+            padding: 12px;
+            font-weight: 700;
+            color: #344054;
+        }
+
+        .score span {
+            display: block;
+            font-size: 28px;
+            font-weight: 900;
+            color: #1f2a44;
+            margin-top: 4px;
+        }
+
+        .status {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2a44;
+            background: #fff7d8;
+            border: 2px solid #ffd95e;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 20px;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .players {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+        }
+
+        .player-card {
+            width: 230px;
+            background: #f8faff;
+            border: 2px solid #d8e1ff;
+            border-radius: 20px;
+            padding: 18px;
+        }
+
+        .player-card h2 {
+            font-size: 18px;
+            color: #344054;
+            margin-bottom: 10px;
+        }
+
+        .choice {
+            font-size: 72px;
+            min-height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 18px;
+            border: 2px dashed #c7d4ff;
+        }
+
+        .vs {
+            font-size: 28px;
+            font-weight: 900;
+            color: #ff5d5d;
+        }
+
+        .result {
+            min-height: 36px;
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 18px;
+        }
+
+        .result.p1 {
+            color: #0d9f6e;
+        }
+
+        .result.p2 {
+            color: #dc2626;
+        }
+
+        .result.draw {
+            color: #6b7280;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .choice-btn {
+            border: 0;
+            border-radius: 18px;
+            padding: 18px 24px;
+            font-size: 20px;
+            font-weight: 800;
+            cursor: pointer;
+            background: linear-gradient(135deg, #4f7cff, #6c8cff);
+            color: white;
+            box-shadow: 0 8px 20px rgba(79, 124, 255, 0.25);
+            transition: 0.15s;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .choice-btn span {
+            display: block;
+            font-size: 38px;
+            margin-bottom: 8px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .primary {
+            border: 0;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            background: #0d9f6e;
+            color: white;
+        }
+
+        .secondary {
+            border: 0;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            background: #eef2f7;
+            color: #344054;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .note {
+            color: #667085;
+            font-size: 13px;
+            margin-top: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .players {
+                flex-direction: column;
+            }
+
+            .player-card {
+                width: 100%;
+                max-width: 320px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .choice {
+                font-size: 56px;
+                min-height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✊ ✋ ✌️ Batu Kertas Gunting</h1>
+        <p class="subtitle">Game 2 pemain dalam satu perangkat, sistem gantian</p>
+
+        <div class="scoreboard">
+            <div class="score">
+                Pemain 1
+                <span id="score1">0</span>
+            </div>
+
+            <div class="score">
+                Seri
+                <span id="scoreDraw">0</span>
+            </div>
+
+            <div class="score">
+                Pemain 2
+                <span id="score2">0</span>
+            </div>
+        </div>
+
+        <div class="status" id="status">
+            Giliran Pemain 1: pilih Batu, Kertas, atau Gunting!
+        </div>
+
+        <div class="players">
+            <div class="player-card">
+                <h2>Pemain 1</h2>
+                <div class="choice" id="choice1">❔</div>
+            </div>
+
+            <div class="vs">VS</div>
+
+            <div class="player-card">
+                <h2>Pemain 2</h2>
+                <div class="choice" id="choice2">❔</div>
+            </div>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="controls" id="controls"></div>
+
+        <div class="actions">
+            <button class="primary hidden" id="btnAgain" onclick="nextRound()">Main Lagi</button>
+            <button class="secondary" onclick="resetScore()">Reset Skor</button>
+        </div>
+
+        <p class="note">
+            Cara main: Pemain 1 memilih terlebih dahulu. Setelah pilihan tersimpan, oper perangkat ke Pemain 2.
+            Pilihan keduanya baru akan ditampilkan saat hasil dibuka.
+        </p>
+    </div>
+
+    <script>
+        const choices = [
+            { name: "Batu", emoji: "✊" },
+            { name: "Kertas", emoji: "✋" },
+            { name: "Gunting", emoji: "✌️" }
+        ];
+
+        let phase = 1; // 1 = giliran pemain 1, 2 = giliran pemain 2, 3 = hasil
+        let p1 = null;
+        let p2 = null;
+
+        let score1 = 0;
+        let score2 = 0;
+        let scoreDraw = 0;
+
+        const statusEl = document.getElementById("status");
+        const controlsEl = document.getElementById("controls");
+        const choice1El = document.getElementById("choice1");
+        const choice2El = document.getElementById("choice2");
+        const resultEl = document.getElementById("result");
+        const btnAgain = document.getElementById("btnAgain");
+
+        const score1El = document.getElementById("score1");
+        const score2El = document.getElementById("score2");
+        const scoreDrawEl = document.getElementById("scoreDraw");
+
+        function renderControls() {
+            controlsEl.innerHTML = "";
+
+            if (phase === 3) {
+                return;
+            }
+
+            choices.forEach((item, index) => {
+                const button = document.createElement("button");
+                button.className = "choice-btn";
+                button.innerHTML = `<span>${item.emoji}</span>${item.name}`;
+                button.addEventListener("click", () => selectChoice(index));
+                controlsEl.appendChild(button);
+            });
+        }
+
+        function selectChoice(index) {
+            if (phase === 1) {
+                p1 = index;
+                phase = 2;
+
+                choice1El.textContent = "🔒";
+                statusEl.textContent = "Pilihan Pemain 1 sudah disimpan! Sekarang giliran Pemain 2.";
+
+                renderControls();
+            } else if (phase === 2) {
+                p2 = index;
+                revealChoices();
+            }
+        }
+
+        function revealChoices() {
+            phase = 3;
+            controlsEl.innerHTML = "";
+            statusEl.textContent = "Membuka pilihan...";
+
+            setTimeout(() => {
+                choice1El.textContent = choices[p1].emoji;
+                choice2El.textContent = choices[p2].emoji;
+
+                const winner = getWinner(p1, p2);
+
+                if (winner === 1) {
+                    score1++;
+                    resultEl.textContent = "🎉 Pemain 1 menang!";
+                    resultEl.className = "result p1";
+                } else if (winner === 2) {
+                    score2++;
+                    resultEl.textContent = "🎉 Pemain 2 menang!";
+                    resultEl.className = "result p2";
+                } else {
+                    scoreDraw++;
+                    resultEl.textContent = "🤝 Seri!";
+                    resultEl.className = "result draw";
+                }
+
+                updateScore();
+
+                statusEl.textContent =
+                    `Pemain 1 memilih ${choices[p1].name}, Pemain 2 memilih ${choices[p2].name}.`;
+
+                btnAgain.classList.remove("hidden");
+            }, 700);
+        }
+
+        function getWinner(a, b) {
+            if (a === b) {
+                return 0;
+            }
+
+            if (
+                (a === 0 && b === 2) || // Batu menang melawan gunting
+                (a === 1 && b === 0) || // Kertas menang melawan batu
+                (a === 2 && b === 1)    // Gunting menang melawan kertas
+            ) {
+                return 1;
+            }
+
+            return 2;
+        }
+
+        function updateScore() {
+            score1El.textContent = score1;
+            score2El.textContent = score2;
+            scoreDrawEl.textContent = scoreDraw;
+        }
+
+        function nextRound() {
+            phase = 1;
+            p1 = null;
+            p2 = null;
+
+            choice1El.textContent = "❔";
+            choice2El.textContent = "❔";
+
+            resultEl.textContent = "";
+            resultEl.className = "result";
+
+            statusEl.textContent = "Giliran Pemain 1: pilih Batu, Kertas, atau Gunting!";
+
+            btnAgain.classList.add("hidden");
+
+            renderControls();
+        }
+
+        function resetScore() {
+            score1 = 0;
+            score2 = 0;
+            scoreDraw = 0;
+
+            updateScore();
+            nextRound();
+        }
+
+        renderControls();
+    </script>
+</body>
+</html>
