@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Tarik Tambang - Pengenalan Jaringan Komputer</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --student-color: #3498db;
+            --computer-color: #e74c3c;
+            --bg-color: #ecf0f1;
+            --success: #2ecc71;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 900px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        /* ARENA TARIK TAMBANG */
+        .arena {
+            position: relative;
+            height: 200px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #8B4513 60%, #8B4513 100%);
+            border-radius: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #bdc3c7;
+        }
+
+        /* Garis Tengah & Zona */
+        .center-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background-color: #f1c40f;
+            transform: translateX(-50%);
+            z-index: 5;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+        }
+
+        .zone-left, .zone-right {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 15%;
+            opacity: 0.3;
+            z-index: 1;
+        }
+        .zone-left { left: 0; background: var(--student-color); border-radius: 12px 0 0 12px; }
+        .zone-right { right: 0; background: var(--computer-color); border-radius: 0 12px 12px 0; }
+
+        /* Tim & Tali */
+        .tug-of-war-wrapper {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 10;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 150px;
+        }
+
+        .avatar {
+            font-size: 60px;
+            filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.3));
+        }
+
+        .team-label {
+            font-weight: bold;
+            margin-top: 5px;
+            padding: 3px 10px;
+            border-radius: 10px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .team.student .team-label { background: var(--student-color); }
+        .team.computer .team-label { background: var(--computer-color); }
+
+        .rope {
+            flex-grow: 1;
+            height: 12px;
+            background: repeating-linear-gradient(
+                90deg,
+                #d35400,
+                #d35400 15px,
+                #e67e22 15px,
+                #e67e22 30px
+            );
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            max-width: 400px;
+        }
+
+        /* Indikator Skor */
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .score-student { color: var(--student-color); }
+        .score-computer { color: var(--computer-color); }
+
+        /* PANEL KUIS */
+        .quiz-panel {
+            background: #fdfdfd;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .question-number {
+            font-size: 12px;
+            color: #95a5a6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 600;
+            min-height: 50px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--student-color);
+            background: #ebf5fb;
+            transform: translateY(-2px);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-btn.correct {
+            background: var(--success) !important;
+            border-color: #27ae60 !important;
+            color: white;
+        }
+
+        .option-btn.wrong {
+            background: var(--computer-color) !important;
+            border-color: #c0392b !important;
+            color: white;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 16px;
+            min-height: 24px;
+        }
+
+        /* OVERLAY HASIL */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(44, 62, 80, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border-radius: 20px;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .overlay.active { display: flex; }
+
+        .result-icon { font-size: 80px; margin-bottom: 15px; }
+        .result-title { font-size: 32px; font-weight: bold; margin-bottom: 10px; }
+        .result-desc { font-size: 16px; margin-bottom: 25px; color: #bdc3c7; max-width: 500px; line-height: 1.5;}
+
+        .btn-restart {
+            background: #f1c40f;
+            color: #2c3e50;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-restart:hover { transform: scale(1.05); }
+
+        .btn-start {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        @media (max-width: 950px) {
+            .game-container { width: 95%; padding: 15px; }
+            .options-grid { grid-template-columns: 1fr; }
+            .rope { max-width: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>🏁 TARIK TAMBANG JARINGAN KOMPUTER 🏁</h1>
+    <p class="subtitle">Materi Pengenalan Jaringan | SMK Kelas 10</p>
+
+    <!-- Arena Visual -->
+    <div class="arena">
+        <div class="zone-left"></div>
+        <div class="center-line"></div>
+        <div class="zone-right"></div>
+
+        <div class="tug-of-war-wrapper" id="ropeWrapper">
+            <div class="team student">
+                <div class="avatar">🧑‍💻</div>
+                <div class="team-label">TIM SISWA</div>
+            </div>
+            <div class="rope"></div>
+            <div class="team computer">
+                <div class="avatar">🤖</div>
+                <div class="team-label">TIM KOMPUTER</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Papan Skor -->
+    <div class="score-board">
+        <span class="score-student">Skor Siswa: <span id="scoreStudent">0</span></span>
+        <span>Pertanyaan: <span id="qCount">1</span>/5</span>
+        <span class="score-computer">Skor Komputer: <span id="scoreComputer">0</span></span>
+    </div>
+
+    <!-- Panel Pertanyaan -->
+    <div class="quiz-panel" id="quizPanel">
+        <div class="question-number" id="qLabel">Pertanyaan 1 dari 5</div>
+        <div class="question-text" id="qText">Tekan tombol Mulai untuk bermain!</div>
+        <div class="options-grid" id="optionsContainer">
+            <button class="btn-start" id="btnStart" onclick="startGame()">MULAI GAME</button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <!-- Overlay Hasil Akhir -->
+    <div class="overlay" id="overlay">
+        <div class="result-icon" id="resIcon"></div>
+        <div class="result-title" id="resTitle"></div>
+        <div class="result-desc" id="resDesc"></div>
+        <button class="btn-restart" onclick="resetGame()">MAIN LAGI</button>
+    </div>
+</div>
+
+<script>
+    // DATABASE SOAL PENGENALAN JARINGAN & KOMPONEN KOMPUTER
+    const questions = [
+        {
+            question: "Komponen perangkat keras (hardware) yang berfungsi sebagai pusat pemrosesan data pada komputer dan wajib ada agar PC bisa terhubung ke jaringan adalah...",
+            options: ["RAM", "CPU (Processor)", "Harddisk", "Power Supply"],
+            correct: 1,
+            explanation: "CPU (Central Processing Unit) adalah otak komputer yang memproses semua instruksi, termasuk proses pengiriman dan penerimaan data jaringan."
+        },
+        {
+            question: "Perangkat keras jaringan yang berfungsi untuk menghubungkan beberapa komputer dalam satu jaringan lokal (LAN) menggunakan kabel adalah...",
+            options: ["Switch / Hub", "Monitor", "Keyboard", "Mouse"],
+            correct: 0,
+            explanation: "Switch atau Hub adalah komponen jaringan yang bertindak sebagai titik pusat koneksi antar komputer dalam jaringan LAN."
+        },
+        {
+            question: "Media transmisi jaringan yang menggunakan inti serat kaca untuk mentransmisikan data dengan kecepatan sangat tinggi melalui cahaya disebut...",
+            options: ["Kabel Coaxial", "Kabel UTP", "Fiber Optic", "Kabel Power"],
+            correct: 2,
+            explanation: "Fiber Optic menggunakan cahaya untuk mentransmisikan data sehingga memiliki kecepatan dan jangkauan yang jauh lebih baik dibanding kabel tembaga."
+        },
+        {
+            question: "Komponen hardware tambahan yang harus dipasang pada motherboard komputer agar dapat terhubung ke jaringan internet maupun LAN adalah...",
+            options: ["VGA Card", "Sound Card", "NIC (Network Interface Card)", "Cooling Fan"],
+            correct: 2,
+            explanation: "NIC atau LAN Card adalah antarmuka fisik (komponen) yang memungkinkan komputer mengirim dan menerima data melalui jaringan."
+        },
+        {
+            question: "Perangkat keras jaringan yang berfungsi untuk menghubungkan dua atau lebih jaringan yang berbeda (misalnya jaringan LAN ke Internet) dan menentukan rute terbaik pengiriman data adalah...",
+            options: ["Flashdisk", "Router", "Printer", "Proyektor"],
+            correct: 1,
+            explanation: "Router bekerja di lapisan jaringan (Network Layer) untuk merutekan paket data antar jaringan yang berbeda."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let scoreStudent = 0;
+    let scoreComputer = 0;
+    let ropePosition = 0; // Posisi tali (0 = tengah, negatif = kiri/siswa menang, positif = kanan/komputer menang)
+
+    const ropeWrapper = document.getElementById('ropeWrapper');
+    const qText = document.getElementById('qText');
+    const qLabel = document.getElementById('qLabel');
+    const qCount = document.getElementById('qCount');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const feedbackEl = document.getElementById('feedback');
+    const overlay = document.getElementById('overlay');
+    const btnStart = document.getElementById('btnStart');
+
+    function startGame() {
+        document.getElementById('btnStart').remove();
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentQuestionIndex >= questions.length) {
+            endGame();
+            return;
+        }
+
+        const q = questions[currentQuestionIndex];
+        qLabel.innerText = `Pertanyaan ${currentQuestionIndex + 1} dari 5`;
+        qCount.innerText = currentQuestionIndex + 1;
+        qText.innerText = q.question;
+        feedbackEl.innerText = "";
+        feedbackEl.style.color = "";
+
+        optionsContainer.innerHTML = "";
+        q.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.classList.add('option-btn');
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedIndex, selectedBtn) {
+        const q = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.option-btn');
+        
+        // Disable semua tombol setelah menjawab
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (selectedIndex === q.correct) {
+            // JAWABAN BENAR -> TALI KE KIRI (SISWA MENANG)
+            selectedBtn.classList.add('correct');
+            feedbackEl.style.color = "var(--success)";
+            feedbackEl.innerText = `✅ Benar! ${q.explanation}`;
+            
+            scoreStudent++;
+            document.getElementById('scoreStudent').innerText = scoreStudent;
+            
+            // Geser tali ke kiri (-80px per jawaban benar)
+            ropePosition -= 80;
+            ropeWrapper.style.transform = `translateX(${ropePosition}px)`;
+
+        } else {
+            // JAWABAN SALAH -> TALI KE KANAN (KOMPUTER MENANG)
+            selectedBtn.classList.add('wrong');
+            buttons[q.correct].classList.add('correct'); // Tunjukkan jawaban benar
+            
+            feedbackEl.style.color = "var(--computer-color)";
+            feedbackEl.innerText = `❌ Salah! ${q.explanation}`;
+            
+            scoreComputer++;
+            document.getElementById('scoreComputer').innerText = scoreComputer;
+            
+            // Geser tali ke kanan (+80px per jawaban salah)
+            ropePosition += 80;
+            ropeWrapper.style.transform = `translateX(${ropePosition}px)`;
+        }
+
+        // Lanjut ke pertanyaan berikutnya setelah jeda
+        setTimeout(() => {
+            currentQuestionIndex++;
+            loadQuestion();
+        }, 3000); // Jeda 3 detik agar siswa membaca penjelasan
+    }
+
+    function endGame() {
+        overlay.classList.add('active');
+        const resIcon = document.getElementById('resIcon');
+        const resTitle = document.getElementById('resTitle');
+        const resDesc = document.getElementById('resDesc');
+
+        if (scoreStudent === 5) {
+            // SEMPURNA! SEMUA BENAR
+            resIcon.innerText = "🏆";
+            resTitle.innerText = "LUAR BIASA! TIM SISWA MENANG MUTLAK!";
+            resTitle.style.color = "#f1c40f";
+            resDesc.innerText = "Selamat! Kamu berhasil menjawab semua pertanyaan tentang komponen jaringan dengan benar. Tali sepenuhnya tertarik ke arahmu. Kamu siap menguasai materi Jaringan Komputer!";
+        } else if (scoreStudent > scoreComputer) {
+            resIcon.innerText = "🎉";
+            resTitle.innerText = "TIM SISWA MENANG!";
+            resTitle.style.color = "var(--student-color)";
+            resDesc.innerText = `Hebat! Kamu menjawab benar ${scoreStudent} dari 5 soal. Tali lebih condong ke arahmu. Terus pelajari komponen-komponen jaringan komputer ya!`;
+        } else if (scoreStudent < scoreComputer) {
+            resIcon.innerText = "🤖";
+            resTitle.innerText = "TIM KOMPUTER MENANG!";
+            resTitle.style.color = "var(--computer-color)";
+            resDesc.innerText = `Yah, kamu hanya menjawab benar ${scoreStudent} dari 5 soal. Tali tertarik ke arah komputer. Jangan menyerah, ayo pelajari lagi materi pengenalan jaringannya!`;
+        } else {
+            resIcon.innerText = "⚖️";
+            resTitle.innerText = "SERI!";
+            resTitle.style.color = "#95a5a6";
+            resDesc.innerText = "Tali berada tepat di tengah. Kamu dan komputer sama kuatnya! Ayo tingkatkan pemahamanmu tentang komponen jaringan.";
+        }
+    }
+
+    function resetGame() {
+        currentQuestionIndex = 0;
+        scoreStudent = 0;
+        scoreComputer = 0;
+        ropePosition = 0;
+        
+        document.getElementById('scoreStudent').innerText = scoreStudent;
+        document.getElementById('scoreComputer').innerText = scoreComputer;
+        ropeWrapper.style.transform = `translateX(0px)`;
+        
+        overlay.classList.remove('active');
+        
+        qText.innerText = "Tekan tombol Mulai untuk bermain!";
+        qLabel.innerText = "Pertanyaan 1 dari 5";
+        qCount.innerText = "1";
+        feedbackEl.innerText = "";
+        
+        optionsContainer.innerHTML = `<button class="btn-start" id="btnStart" onclick="startGame()">MULAI GAME</button>`;
+    }
+</script>
+
+</body>
+</html>
